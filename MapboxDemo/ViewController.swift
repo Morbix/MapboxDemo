@@ -82,6 +82,8 @@ class ViewController: UIViewController {
         shape.title = "Estrela da morte"
         
         mapView.addAnnotation(shape)
+        
+        shape.
     }
 
     
