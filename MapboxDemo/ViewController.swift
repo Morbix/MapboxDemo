@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     var mapView: MGLMapView!
     let brasilLocation = CLLocationCoordinate2D(latitude: -30.10185,
         longitude: -51.2963472)
+    
+    var coordinates = [CLLocationCoordinate2D]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,8 +42,16 @@ class ViewController: UIViewController {
         view.addSubview(mapView)
         
         mapView.delegate = self
+        
+        mapView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: Selector("mapTapped:")))
     }
 
+    func mapTapped(tap: UITapGestureRecognizer){
+        let point = tap.locationInView(tap.view)
+        
+        fire(point)
+    }
+    
     func addMockPoint(){
         // Declare the annotation `point` and set its coordinates, title, and subtitle
         let point = MGLPointAnnotation()
@@ -55,7 +65,7 @@ class ViewController: UIViewController {
     
     func drawShape() {
         // Create a coordinates array to hold all of the coordinates for our shape.
-        var coordinates = [
+        coordinates = [
             CLLocationCoordinate2D(latitude: -30.10185, longitude: -51.2963472),
             CLLocationCoordinate2D(latitude: -31.10185, longitude: -50.2963472),
             CLLocationCoordinate2D(latitude: -32.10185, longitude: -51.7963472),
@@ -66,7 +76,7 @@ class ViewController: UIViewController {
             CLLocationCoordinate2D(latitude: -31.90185, longitude: -50.8963472),
         ]
         
-        drawPath(withCoordinates: coordinates)
+        //drawPath()
         
         let shape = MGLPolygon(coordinates: &coordinates, count: UInt(coordinates.count))
         shape.title = "Estrela da morte"
@@ -75,8 +85,7 @@ class ViewController: UIViewController {
     }
 
     
-    func drawPath(withCoordinates coordinates: [CLLocationCoordinate2D]){
-        
+    func drawPath(){
         
         let shape = CAShapeLayer()
         view.layer.addSublayer(shape)
@@ -90,11 +99,9 @@ class ViewController: UIViewController {
             return mapView.convertCoordinate(location, toPointToView: mapView)
         }
         
-        
         let path = UIBezierPath()
         
         for (index, point) in points.enumerate(){
-            print(index, point)
             
             if index == 0 {
                 path.moveToPoint(point)
@@ -104,9 +111,30 @@ class ViewController: UIViewController {
         }
         path.closePath()
         shape.path = path.CGPath
-
+    }
+    
+    func fire(touched : CGPoint){
+        let points = coordinates.map { (location) -> CGPoint in
+            return mapView.convertCoordinate(location, toPointToView: mapView)
+        }
         
-        //path.containsPoint(<#T##point: CGPoint##CGPoint#>)
+        let path = UIBezierPath()
+        
+        for (index, point) in points.enumerate(){
+            if index == 0 {
+                path.moveToPoint(point)
+            }else{
+                path.addLineToPoint(point)
+            }
+        }
+        
+        path.closePath()
+        
+        if path.containsPoint(touched){
+            print("Vc acertou a estrela da morte")
+        }else{
+            print("agua")
+        }
     }
 }
 
